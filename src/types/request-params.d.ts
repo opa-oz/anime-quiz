@@ -1,3 +1,22 @@
+import { Difficulty } from '../enums';
+
+export type UserSession = {
+    id: string;
+    score: number;
+    isQuizStarted: boolean;
+    isReadyToAnswer: boolean;
+    isReadyToNextQuestion: boolean;
+    isReadyToExperiment?: boolean;
+    isQuizFinished: boolean;
+    passedQuestionsCount?: number;
+    needToChooseExperiment?: boolean;
+    needToChooseDifficulty?: boolean;
+    quizDifficulty?: Difficulty;
+    questionsRow?: Array<number>;
+    rightAnswer?: string | number;
+    rightAnswerIndex?: number;
+}
+
 export type Session = {
     message_id: number;
     session_id: string;
@@ -13,13 +32,17 @@ export type Session = {
     new: boolean;
 };
 
+export type SessionState = {
+    session: UserSession;
+}
+
 export type Version = '1.0';
 
 export type Params = {
     session: Session;
     res: any;
     version: Version;
-    logId: string;
+    session_state: UserSession;
 }
 
 type Entity = {
@@ -27,7 +50,7 @@ type Entity = {
         start: number;
         end: number;
     },
-    type: "YANDEX.GEO" | "YANDEX.DATETIME" | "YANDEX.FIO" | "YANDEX.NUMBER";
+    type: 'YANDEX.GEO' | 'YANDEX.DATETIME' | 'YANDEX.FIO' | 'YANDEX.NUMBER';
     value: {
         house_number: string;
         street: string;
@@ -49,7 +72,7 @@ export type Request = {
 }
 
 export type GalleryCard = {
-    type: "ItemsList",
+    type: 'ItemsList',
     header?: {
         text: string;
     },
@@ -74,7 +97,7 @@ export type GalleryCard = {
 }
 
 export type ImageCard = {
-    type: "BigImage";
+    type: 'BigImage';
     image_id: string;
     title?: string;
     description?: string;

@@ -1,1 +1,21 @@
 difficulty: Сложно
+questions:
+  - question:
+      id: 1
+      title: Как переводится имя лучшей Рыцарши?
+      right_answer: Тьма
+      answers:
+        - Свет
+        - Тьма
+        - Эмилия
+        - Вода
+  - question:
+      id: 2
+      title: Аниме с самым большим количеством сезонов
+      right_answer: Ванпис
+      answers:
+        - Ванпис
+        - Ванпанчмен
+        - Охоник х Охотник
+        - Акира
+

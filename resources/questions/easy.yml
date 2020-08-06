@@ -1,1 +1,29 @@
 difficulty: Просто
+questions:
+  - question:
+      id: 1
+      title: Кто лучшая девочка?
+      right_answer: Рэм
+      answers:
+        - Рэм
+        - Рам
+        - Эмилия
+        - Аква
+  - question:
+      id: 2
+      title: Лучшее аниме
+      right_answer: Коносуба
+      answers:
+        - Моя геройская академия
+        - Тетрадь смерти
+        - Мой Пико
+        - Коносуба
+  - question:
+      id: 3
+      title: Fake question \#1
+      right_answer: c
+      answers:
+        - a
+        - b
+        - c
+        - d
