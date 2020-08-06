@@ -5,6 +5,8 @@ import { v4 as uuidV4 } from 'uuid';
 import { Params, Request, Response, Session, SessionState, UserSession, Version } from '../src/types/request-params';
 import { Question, QuestionsSource } from '../src/types/configs';
 
+import logger from '../src/logger';
+
 import { getResource } from '../src/yaml-manager';
 import shortDescription from '../src/utils/short-description';
 import pickRandomPhrase from '../src/utils/pick-random-phrase';
@@ -87,6 +89,7 @@ export default async (req: NowRequest, res: NowResponse): Promise<void> => {
 
     const isStateAvailable = Boolean(state && state.session);
     let userSession: UserSession = {
+        // @ts-ignore
         id: uuidV4(),
         ...DEFAULT_SESSION,
     };
@@ -98,6 +101,8 @@ export default async (req: NowRequest, res: NowResponse): Promise<void> => {
     const defaultRes = { res, version, session, session_state: userSession } as Params;
 
     const endWithError = () => {
+        logger.error('[ERROR] Sort of error:', JSON.parse(JSON.stringify(userSession)))
+
         return responseToUser(defaultRes, {
             text: pickRandomPhrase(phrases.ERROR) as string,
             end_session: true
@@ -111,8 +116,11 @@ export default async (req: NowRequest, res: NowResponse): Promise<void> => {
         })
     }
 
-    const idle = () => {
+    const idle = (orig) => {
         // @todo: Помощь на каждом шаге
+
+        logger.debug('[IDLE]', orig);
+
         return responseToUser(defaultRes, {
             text: pickRandomPhrase(phrases.IDLE) as string,
         })
@@ -146,7 +154,7 @@ export default async (req: NowRequest, res: NowResponse): Promise<void> => {
     }
 
     const planQuestionsAndStart = () => {
-        const questionsArray = chooseQuestionsArray(userSession.quizDifficulty);
+        const questionsArray = chooseQuestionsArray(userSession.quizDifficulty as Difficulty);
 
         const questionsRow = pickRandomItemRange<Question>(questionsArray, MAX_QUESTIONS).map(v => v.id);
 
@@ -204,10 +212,13 @@ export default async (req: NowRequest, res: NowResponse): Promise<void> => {
                         userSession.score += 1;
                     }
 
-                    if (passedQuestionsCount >= MAX_QUESTIONS) {
+                    if (passedQuestionsCount && passedQuestionsCount >= MAX_QUESTIONS) {
                         userSession.isQuizFinished = true;
                         userSession.isReadyToNextQuestion = false;
                         userSession.isReadyToAnswer = false;
+
+                        logger.debug(`[FINAL] score=${userSession.score} | experiment=${userSession.isReadyToExperiment}`);
+
                         return responseToUser(defaultRes, {
                             text: pickRandomPhrase(phrases.LAST_QUESTION_PASSED, [isRight, userSession.score, rightAnswer]) as string,
                             buttons: buildButtons([
@@ -224,8 +235,10 @@ export default async (req: NowRequest, res: NowResponse): Promise<void> => {
                     // @note: Проверить цифровой ответ
                     const { rightAnswerIndex, rightAnswer } = userSession;
 
-                    userSession.rightAnswer = null;
-                    userSession.rightAnswerIndex = null;
+                    logger.debug(`[EXTRACT NUMBER] possible_number=${possibleNumber} | right_answer=${rightAnswer} | right_answer_index=${rightAnswerIndex}`);
+
+                    userSession.rightAnswer = undefined;
+                    userSession.rightAnswerIndex = undefined;
 
                     return goNext(possibleNumber === rightAnswerIndex, rightAnswer)
                 }
@@ -237,10 +250,13 @@ export default async (req: NowRequest, res: NowResponse): Promise<void> => {
                     const fuse = new Fuse(fakeList, { includeScore: true, shouldSort: true });
                     const [searchResult] = fuse.search(orig);
                     const { score } = searchResult || {};
-                    const isRight = score <= EXPERIMENT_ACCURACY;
 
-                    userSession.rightAnswer = null;
-                    userSession.rightAnswerIndex = null;
+                    const isRight = Boolean(score && score <= EXPERIMENT_ACCURACY);
+
+                    logger.debug(`[EXPERIMENT] input=${orig} | right_answer=${rightAnswer} | score=${score} | isRight=${isRight}`);
+
+                    userSession.rightAnswer = undefined;
+                    userSession.rightAnswerIndex = undefined;
 
                     return goNext(isRight, rightAnswer)
                 }
@@ -255,6 +271,7 @@ export default async (req: NowRequest, res: NowResponse): Promise<void> => {
                     if (userSession.isQuizFinished) {
                         // @note Игра закончилась, спросили "Хочешь ещё?" и он согласился
                         defaultRes.session_state = {
+                            // @ts-ignore
                             id: uuidV4(),
                             ...DEFAULT_SESSION
                         };
@@ -296,20 +313,21 @@ export default async (req: NowRequest, res: NowResponse): Promise<void> => {
                         // @note Согласен на следующий вопрос
                         userSession.isReadyToNextQuestion = false;
                         userSession.isReadyToAnswer = true;
-                        userSession.passedQuestionsCount += 1;
+                        userSession.passedQuestionsCount = (userSession.passedQuestionsCount || 0) + 1;
 
-                        const questionsArray = chooseQuestionsArray(userSession.quizDifficulty);
-                        const { questionsRow, passedQuestionsCount } = userSession;
+                        const questionsArray = chooseQuestionsArray(userSession.quizDifficulty as Difficulty);
+                        const { questionsRow = [], passedQuestionsCount } = userSession;
 
                         return askQuestion(questionsRow[passedQuestionsCount - 1], questionsArray);
                     }
 
-                    return idle();
+                    return idle(orig);
                 }
                 case Commands.DISAGREE: {
                     if (userSession.isQuizFinished) {
                         // @note Предложили поиграть ещё раз - отказался
                         defaultRes.session_state = {
+                            // @ts-ignore
                             id: uuidV4(),
                             ...DEFAULT_SESSION,
                         };
@@ -346,7 +364,7 @@ export default async (req: NowRequest, res: NowResponse): Promise<void> => {
                         return endWithMessage();
                     }
 
-                    return idle();
+                    return idle(orig);
                 }
                 case Commands.EASY: {
                     userSession.needToChooseDifficulty = false;
@@ -377,6 +395,7 @@ export default async (req: NowRequest, res: NowResponse): Promise<void> => {
                 case Commands.HELP: {
                     // @note Помогаем пользователю
                     defaultRes.session_state = {
+                        // @ts-ignore
                         id: uuidV4(),
                         ...DEFAULT_SESSION,
                     }
@@ -387,7 +406,7 @@ export default async (req: NowRequest, res: NowResponse): Promise<void> => {
                     });
                 }
                 default:
-                    return idle();
+                    return idle(orig);
             }
         }
     }
