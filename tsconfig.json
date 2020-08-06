@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "sourceMap": true,
+    "strictNullChecks": true,
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "target": "es5",
+    "lib": [
+      "es2015"
+    ],
+    "allowJs": true,
+    "types": [
+      "node"
+    ]
+  },
+  "include": [
+    "./src/"
+  ]
+}

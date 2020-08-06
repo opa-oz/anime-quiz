@@ -1,0 +1,33 @@
+{
+  "name": "anime-quiz",
+  "version": "1.0.0",
+  "description": "Anime quiz for Yandex.Alice dialogs",
+  "main": "api/app.ts",
+  "repository": "https://github.com/opa-oz/anime-quiz.git",
+  "author": "Vladimir <opaozhub@gmail.com>",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "build": "chmod +x ./build.sh && ./build.sh",
+    "lint": "eslint . --ext .ts"
+  },
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "fs-extra": "^9.0.1",
+    "fuse.js": "^6.4.1",
+    "global": "^4.4.0",
+    "request-promise": "^4.2.6",
+    "yaml": "^1.10.0"
+  },
+  "engines": {
+    "node": "12.x"
+  },
+  "devDependencies": {
+    "@types/fuse": "^2.6.0",
+    "@typescript-eslint/eslint-plugin": "^3.8.0",
+    "@typescript-eslint/parser": "^3.8.0",
+    "@vercel/node": "^1.7.4",
+    "eslint": "^7.6.0",
+    "typescript": "^3.9.7"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "@typescript-eslint"
+  ],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "globals": {
+    "__dirname": true,
+    "module": true
+  },
+  "rules": {
+    "quotes": [
+      1,
+      "single"
+    ],
+    "@typescript-eslint/ban-ts-comment": 0
+  }
+}
