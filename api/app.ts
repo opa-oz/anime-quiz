@@ -52,7 +52,7 @@ const responseToUser = ({ res, version, session, session_state }: Params, respon
 const defaultAnswer = (params: Params) => {
     return responseToUser(params, {
         text: pickRandomPhrase(phrases.DEFAULT) as string,
-        buttons: buildButtons(['Поиграем?']),
+        buttons: buildButtons(['Готов']),
     })
 };
 
@@ -251,7 +251,7 @@ export default async (req: NowRequest, res: NowResponse): Promise<void> => {
                     const [searchResult] = fuse.search(orig);
                     const { score } = searchResult || {};
 
-                    const isRight = Boolean(score && score <= EXPERIMENT_ACCURACY);
+                    const isRight = Boolean(typeof score === 'number' && score <= EXPERIMENT_ACCURACY);
 
                     logger.debug(`[EXPERIMENT] input=${orig} | right_answer=${rightAnswer} | score=${score} | isRight=${isRight}`);
 
@@ -279,8 +279,8 @@ export default async (req: NowRequest, res: NowResponse): Promise<void> => {
                         return responseToUser(defaultRes, {
                             text: pickRandomPhrase(phrases.CHOOSE_DIFFICULTY) as string,
                             buttons: buildButtons([
-                                'Лёгкая',
-                                'Сложная'
+                                'Лёгкие',
+                                'Сложные'
                             ])
                         })
                     }
@@ -295,8 +295,8 @@ export default async (req: NowRequest, res: NowResponse): Promise<void> => {
                         return responseToUser(defaultRes, {
                             text: pickRandomPhrase(phrases.CHOOSE_DIFFICULTY) as string,
                             buttons: buildButtons([
-                                'Лёгкая',
-                                'Сложная'
+                                'Лёгкие',
+                                'Сложные'
                             ])
                         })
                     }
@@ -353,8 +353,8 @@ export default async (req: NowRequest, res: NowResponse): Promise<void> => {
                         return responseToUser(defaultRes, {
                             text: pickRandomPhrase(phrases.ASK_FOR_MORE, [userSession.score]) as string,
                             buttons: buildButtons([
-                                'Ну давай еще разок',
-                                'Как-нибудь потом'
+                                'Давай',
+                                'Потом'
                             ])
                         })
                     }
