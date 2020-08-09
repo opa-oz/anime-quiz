@@ -3,7 +3,7 @@ import pickRandomPhrase from './utils/pick-random-phrase';
 
 export const phrases = {
     DEFAULT: [
-        (): string => 'Я аниме-Алиса и я бросаю вам вызов! Я буду задавать вопросы об аниме, а вы должен давать правильные ответы!\n Готовы?',
+        (): string => 'Я аниме-Алиса и я бросаю вам вызов! Я буду задавать вопросы об аниме, а вы должны давать правильные ответы!\n Готовы?',
         (): string => 'Я аниме-Алиса и я очень люблю задавать вопросы! Давайте поиграем? \nЯ буду спрашивать что-то про аниме и давать варианты ответов, а Вы - правильно отвечать и хорошо проводить время. \n Начнём?',
         (): string => 'Заскучали? Может устроим небольшой квиз по аниме? У меня есть вопросы и варианты ответов и я готова обменять их на ваши ответы.\n Поиграем?',
         (): string => 'Люблю аниме. А еще больше люблю викторины про аниме! У меня тут есть одна, как раз. \n Попробуем?',
@@ -19,13 +19,13 @@ export const phrases = {
         (): string => 'Я аниме-Алиса! Я ведущий викторины про аниме. Если хотите поучаствовать, выберите сложность и мы начнём! Я буду задавать вопросы и давать варианты ответов, а вы отвечать, называя номер ответа. \n Поехали?'
     ],
     CHOOSE_DIFFICULTY: [
-        (): string => `Всего в викторине ${MAX_QUESTIONS} вопросов. Для каждого из них есть 4 варианта ответа. Назовите номер варианта, который вам кажется верный и я скажу - правы ли вы.\n У меня есть легкие и сложные вопросы, какие выбираете?`,
+        (): string => `Всего в викторине ${MAX_QUESTIONS} вопросов. Для каждого из них есть 4 варианта ответа. Назовите номер варианта, который вам кажется верным и я скажу - правы ли вы.\n У меня есть легкие и сложные вопросы, какие выбираете?`,
         (): string => `Всего будет ${MAX_QUESTIONS} вопросов и по 4 варианта ответа на каждый. Вам остаётся лишь назвать номер варианта! \n Хотите лёгкие или сложные вопросы?`
     ],
     ASK_QUESTION: [
         (question: string, answers: Array<string>): TTSPhrase => {
             const ttsAnswers = answers
-                .map((answer, index) => `${index + 1}  ${answer}.`)
+                .map((answer, index) => `${index + 1}.  ${answer}.`)
                 .join(' ')
             const answersToShow = answers
                 .map((answer, index) => `${index + 1})  ${answer}`)
@@ -81,6 +81,11 @@ export const phrases = {
         (rightAnswer: string): string => `Увы, не угадали... Правильный ответ: ${rightAnswer}\n`,
         (rightAnswer: string): string => `Вы были близко, но недостаточно близко... Правильный ответ: ${rightAnswer}\n`,
     ],
+    NEXT: [
+        (isThisLastQuestion: boolean): string => `Готовы к ${isThisLastQuestion ? 'последнему' : 'следующему'} вопросу?`,
+        (isThisLastQuestion: boolean): string => `Переходим к ${isThisLastQuestion ? 'последнему' : 'следующему'} вопросу?`,
+        (isThisLastQuestion: boolean): string => `Движемся дальше? ${isThisLastQuestion ? 'Этот вопрос будет последним' : ''}`,
+    ],
     IS_READY_TO_NEXT: [
         (isRight: boolean, score: number, rightAnswer?: string, isThisLastQuestion?: boolean): string => {
             let prefix;
@@ -93,7 +98,7 @@ export const phrases = {
 
             const scoreText = `\nВаш счёт ${score}`;
 
-            return `${prefix} ${scoreText} \nГотовы к ${isThisLastQuestion ? 'последнему' : 'следующему'} вопросу?`;
+            return `${prefix} ${scoreText} \n${pickRandomPhrase(phrases.NEXT, [isThisLastQuestion])}`;
         }
     ],
     LAST_QUESTION_PASSED: [
